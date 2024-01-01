@@ -8,7 +8,16 @@ public class TheIsland : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+		PublicDependencyModuleNames.AddRange(new string[] { 
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore",
+			// Game Feature
+			"ModularGameplay", // Game Feature 플러그인에서 참조.
+			"GameFeatures",
+            "ModularGameplayActors",
+        });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
