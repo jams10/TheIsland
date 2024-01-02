@@ -3,6 +3,7 @@
 #include "TheIsland/Character/TICharacter.h"
 #include "TheIsland/Player/TIPlayerController.h"
 #include "TheIsland/Player/TIPlayerState.h"
+#include "TIExperienceManagerComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(TIGameMode)
 
@@ -24,6 +25,21 @@ void ATIGameMode::InitGame(const FString& MapName, const FString& Options, FStri
 	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ThisClass::HandleMatchAssignmentIfNotExpectingOne);
 }
 
+void ATIGameMode::InitGameState()
+{
+	Super::InitGameState();
+
+	UTIExperienceManagerComponent* ExperienceManagerComponent = GameState->FindComponentByClass<UTIExperienceManagerComponent>();
+	check(ExperienceManagerComponent);
+
+	// ExperienceManagerComponent 함수를 사용해 Experience가 로드 되었을 때 초기화 작업을 수행하기 위해 델리게이트를 걸어 놓음.
+	ExperienceManagerComponent->CallOrRegister_OnExperienceLoaded(FOnTIExperienceLoaded::FDelegate::CreateUObject(this, &ThisClass::OnExperienceLoaded));
+}
+
 void ATIGameMode::HandleMatchAssignmentIfNotExpectingOne()
+{
+}
+
+void ATIGameMode::OnExperienceLoaded(const UTIExperienceDefinition* CurrentExperience)
 {
 }

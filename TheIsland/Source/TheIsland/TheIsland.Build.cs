@@ -13,6 +13,8 @@ public class TheIsland : ModuleRules
 			"CoreUObject", 
 			"Engine", 
 			"InputCore",
+			// GAS
+			"GameplayTags",
 			// Game Feature
 			"ModularGameplay", // Game Feature 플러그인에서 참조.
 			"GameFeatures",
