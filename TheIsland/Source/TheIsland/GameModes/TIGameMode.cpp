@@ -14,3 +14,16 @@ ATIGameMode::ATIGameMode(const FObjectInitializer& ObjectInitializer)
 	PlayerStateClass = ATIPlayerState::StaticClass();
 	DefaultPawnClass = ATICharacter::StaticClass();
 }
+
+void ATIGameMode::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+	Super::InitGame(MapName, Options, ErrorMessage);
+
+	// 아직 GameInstance를 통해 초기화 작업이 진행되므로, 현 프레임에는 Lyra에 새로 도입된 Experience 초기화를 진행할 수 없음.
+	// 이를 처리하기 위해, 한 프레임 뒤에 이벤트를 받아 초기화 작업을 이어 나갈 수 있도록 함.
+	GetWorld()->GetTimerManager().SetTimerForNextTick(this, &ThisClass::HandleMatchAssignmentIfNotExpectingOne);
+}
+
+void ATIGameMode::HandleMatchAssignmentIfNotExpectingOne()
+{
+}
