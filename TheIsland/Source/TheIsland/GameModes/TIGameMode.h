@@ -20,6 +20,7 @@ public:
 
 	// 액터 함수들 중 PreInitializeComponents() 함수를 포함한 다른 함수들 보다 앞서서 호출되는 초기화 함수.
 	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) final;
+	// GameState가 스폰된 뒤에 PreInitializeComponents() 함수에서 호출하는 함수. GameState 액터를 기본 세팅 값으로 초기화 함.
 	virtual void InitGameState() final;
 
 	// Experience 초기화를 위한 준비가 모두 끝난 시점의 다음 프레임에 호출되는 함수.
