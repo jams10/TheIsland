@@ -1,18 +1,12 @@
 #pragma once
 
-#include "ModularCharacter.h"
+#include "GameFramework/Character.h"
 #include "TICharacter.generated.h"
 
 UCLASS()
-class ATICharacter : public AModularCharacter
+class ATICharacter : public ACharacter
 {
 	GENERATED_BODY()
 public:
 	ATICharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-
-	//~AActor interface
-	virtual void PreInitializeComponents() override;
-	virtual void BeginPlay() override;
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-	//~End of AActor interface
 };

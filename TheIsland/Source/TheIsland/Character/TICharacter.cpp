@@ -6,18 +6,3 @@ ATICharacter::ATICharacter(const FObjectInitializer& ObjectInitializer)
 {
 
 }
-
-void ATICharacter::PreInitializeComponents()
-{
-	Super::PreInitializeComponents();
-}
-
-void ATICharacter::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-void ATICharacter::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	Super::EndPlay(EndPlayReason);
-}

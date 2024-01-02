@@ -6,23 +6,3 @@ ATIPlayerController::ATIPlayerController(const FObjectInitializer& ObjectInitial
 {
 
 }
-
-void ATIPlayerController::PreInitializeComponents()
-{
-	Super::PreInitializeComponents();
-}
-
-void ATIPlayerController::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	Super::EndPlay(EndPlayReason);
-}
-
-void ATIPlayerController::ReceivedPlayer()
-{
-	Super::ReceivedPlayer();
-}
-
-void ATIPlayerController::PlayerTick(float DeltaTime)
-{
-	Super::PlayerTick(DeltaTime);
-}

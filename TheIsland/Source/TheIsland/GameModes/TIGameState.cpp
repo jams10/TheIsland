@@ -6,18 +6,3 @@ ATIGameState::ATIGameState(const FObjectInitializer& ObjectInitializer)
 {
 
 }
-
-void ATIGameState::PreInitializeComponents()
-{
-	Super::PreInitializeComponents();
-}
-
-void ATIGameState::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-}
-
-void ATIGameState::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-	Super::EndPlay(EndPlayReason);
-}
