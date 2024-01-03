@@ -3,6 +3,7 @@
 #include "TheIsland/Character/TICharacter.h"
 #include "TheIsland/Player/TIPlayerController.h"
 #include "TheIsland/Player/TIPlayerState.h"
+#include "TheIsland/TILogChannels.h"
 #include "TIExperienceManagerComponent.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(TIGameMode)
@@ -42,4 +43,28 @@ void ATIGameMode::HandleMatchAssignmentIfNotExpectingOne()
 
 void ATIGameMode::OnExperienceLoaded(const UTIExperienceDefinition* CurrentExperience)
 {
+}
+
+APawn* ATIGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform)
+{
+	UE_LOG(LogTI, Log, TEXT("SpawnDefaultPawnAtTransform_Implementation is called!"));
+	return Super::SpawnDefaultPawnAtTransform_Implementation(NewPlayer, SpawnTransform);
+}
+
+void ATIGameMode::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
+{
+	if (IsExperienceLoaded()) // Experience가 로드 되었을 때만 HandleStartingNewPlayer() 함수를 호출하도록 함.
+	{
+		Super::HandleStartingNewPlayer_Implementation(NewPlayer);
+	}
+}
+
+bool ATIGameMode::IsExperienceLoaded() const
+{
+	check(GameState);
+	// ExperienceManagerComponent를 통해 Experience 로드 여부를 가져옴.
+	UTIExperienceManagerComponent* ExperienceManagerComponent = GameState->FindComponentByClass<UTIExperienceManagerComponent>();
+	check(ExperienceManagerComponent);
+
+	return ExperienceManagerComponent->IsExperienceLoaded();
 }

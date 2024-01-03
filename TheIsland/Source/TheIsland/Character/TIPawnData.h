@@ -11,4 +11,8 @@ class UTIPawnData : public UPrimaryDataAsset
 
 public:
 	UTIPawnData(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	// Spawn해서 조종할 Pawn 클래스.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TI|Pawn")
+	TSubclassOf<APawn> PawnClass;
 };
