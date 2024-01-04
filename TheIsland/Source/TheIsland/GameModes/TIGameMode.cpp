@@ -39,6 +39,27 @@ void ATIGameMode::InitGameState()
 
 void ATIGameMode::HandleMatchAssignmentIfNotExpectingOne()
 {
+	// 이 함수에서는 우리가 로딩할 ExperienceDefinition 애셋의 PrimaryAssetId를 가져와서, OnMatchAssignmentGiven 함수로 넘겨줌.
+
+	FPrimaryAssetId ExperienceId; // PrimaryAssetId의 경우 애셋 타입과 이름으로 구성됨.
+
+	// 아무런 설정도 하지 않은 경우 기본적으로 불러올 ExperienceDefinition.
+	if (!ExperienceId.IsValid())
+	{
+		ExperienceId = FPrimaryAssetId(FPrimaryAssetType("TIExperienceDefinition"), FName("B_DefaultExperience"));
+	}
+
+	OnMatchAssignmentGiven(ExperienceId);
+}
+
+void ATIGameMode::OnMatchAssignmentGiven(FPrimaryAssetId ExperienceId)
+{
+	// 이 함수는 ExperienceManagerComponent를 활용하여 Experience를 로드를 시작함.
+	check(ExperienceId.IsValid());
+
+	UTIExperienceManagerComponent* ExperienceManagerComponent = GameState->FindComponentByClass<UTIExperienceManagerComponent>();
+	check(ExperienceManagerComponent);
+	ExperienceManagerComponent->ServerSetCurrentExperience(ExperienceId);
 }
 
 void ATIGameMode::OnExperienceLoaded(const UTIExperienceDefinition* CurrentExperience)

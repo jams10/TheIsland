@@ -30,12 +30,18 @@ class UTIExperienceManagerComponent : public UGameStateComponent
 public:
 	UTIExperienceManagerComponent(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-	// 현재 Experience가 로드 되었는지 체크하는 함수.
-	bool IsExperienceLoaded() { return  (LoadState == ETIExperienceLoadState::Loaded) && (CurrentExperience != nullptr); }
-
 	// 이미 Experience 로딩이 끝났다면 인자로 넘겨준 Delegate를 로드된 Experience와 함께 호출하고,
 	// Experience가 로드 되지 않았다면, OnExperienceLoaded에 델리게이트를 바인딩 해주는 함수.
 	void CallOrRegister_OnExperienceLoaded(FOnTIExperienceLoaded::FDelegate&& Delegate);
+
+	// 현재 Experience가 로드 되었는지 체크하는 함수.
+	bool IsExperienceLoaded() { return  (LoadState == ETIExperienceLoadState::Loaded) && (CurrentExperience != nullptr); }
+	// ExperienceDefinition 블루프린트 클래스를 정적 로드하고, 그 CDO를 CurrentExperience로 설정하는 함수.
+	void ServerSetCurrentExperience(FPrimaryAssetId ExperienceId);
+	// ExperienceDefinition 로드를 시작하는 함수.
+	void StartExperienceLoad();
+	void OnExperienceLoadComplete();
+	void OnExperienceFullLoadCompleted();
 
 	// 현재 적용된 Experience. 
 	// TODO : 멀티플레이어를 고려할 경우, Lyra에서 처럼 replicated 변수로 만들어 줘야 함.
