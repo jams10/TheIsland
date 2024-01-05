@@ -1,5 +1,6 @@
 ﻿
 #include "TIAssetManager.h"
+#include "TheIsland/TIGameplayTag.h"
 #include "TheIsland/TILogChannels.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(TIAssetManager)
@@ -81,4 +82,8 @@ void UTIAssetManager::StartInitialLoading()
 	Super::StartInitialLoading();
 
 	UE_LOG(LogTI, Display, TEXT("UTIAssetManager::StartInitialLoading"));
+
+	// TIGameplayTags 초기화.
+	// Lyra에서는 STARTUP_JOB() 매크로를 활용하고 있으나, 현재 우리는 로딩과 관계 없으므로 간단하게 구현함.
+	FTIGameplayTags::InitializeNativeTags();
 }
