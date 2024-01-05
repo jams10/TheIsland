@@ -5,6 +5,7 @@
 #include "TIGameMode.generated.h"
 
 class UTIExperienceDefinition;
+class UTIPawnData;
 
 /**
  *	ATIGameMode
@@ -25,9 +26,14 @@ public:
 
 	// Transform 정보를 통해 실제로 Pawn을 spawn하는 함수.
 	virtual APawn* SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform) final;
+	// GameMode에 설정해준 DefaultPawnClass를 리턴하는 함수. 우리는 이를 override 하여 Experience의 PawnData에 있는 Pawn class를 리턴하도록 함.
+	virtual UClass* GetDefaultPawnClassForController_Implementation(AController* InController) final;
 
 	// 조종할 Pawn 생성의 시작점이 되는 함수. Experience가 로드 되었을 때 Pawn을 spawn할 수 있도록 override 해줌.
 	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) final;
+
+	// Controller가 보유한 PlayerState로부터 PawnData를 얻어와 리턴하는 함수.
+	const UTIPawnData* GetPawnDataForController(const AController* InController) const;
 
 #pragma region Experience
 	// Experience 로드를 위한 준비가 모두 끝난 시점의 다음 프레임에 호출되는 함수.

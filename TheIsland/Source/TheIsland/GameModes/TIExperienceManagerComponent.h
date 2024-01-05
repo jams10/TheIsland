@@ -42,6 +42,8 @@ public:
 	void StartExperienceLoad();
 	void OnExperienceLoadComplete();
 	void OnExperienceFullLoadCompleted();
+	// 로드된 Experience를 리턴하는 함수.
+	const UTIExperienceDefinition* GetCurrentExperienceChecked() const;
 
 	// 현재 적용된 Experience. 
 	// TODO : 멀티플레이어를 고려할 경우, Lyra에서 처럼 replicated 변수로 만들어 줘야 함.

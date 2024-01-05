@@ -3,6 +3,7 @@
 #include "TheIsland/Character/TIPawnData.h"
 #include "TheIsland/GameModes/TIExperienceDefinition.h"
 #include "TheIsland/GameModes/TIExperienceManagerComponent.h"
+#include "TheIsland/GameModes/TIGameMode.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(TIPlayerState)
 
 ATIPlayerState::ATIPlayerState(const FObjectInitializer& ObjectInitializer)
@@ -28,4 +29,24 @@ void ATIPlayerState::PostInitializeComponents()
 
 void ATIPlayerState::OnExperienceLoaded(const UTIExperienceDefinition* CurrentExperience)
 {
+	if (ATIGameMode* GameMode = GetWorld()->GetAuthGameMode<ATIGameMode>())
+	{
+		// GetPawnDataForController() 함수에서는 PlayerState에 PawnData가 설정 되어 있으면 그냥 PlayerState의 PawnData를 리턴하지만,
+		// PawnData가 설정 되어 있지 않으면 현재 로드한 Experience에 있는 PawnData를 가져와 리턴 해줌.
+		// 따라서 GetPawnDataForController() 함수를 통해 현재 로드된 Experience의 PawnData를 가져와서 PlayerState의 PawnData로 설정해줌.
+		const UTIPawnData* NewPawnData = GameMode->GetPawnDataForController(GetOwningController());
+		check(NewPawnData);
+
+		SetPawnData(NewPawnData);
+	}
+}
+
+void ATIPlayerState::SetPawnData(const UTIPawnData* InPawnData)
+{
+	check(InPawnData);
+
+	// PawnData가 두 번 설정 되는 것은 원하지 않음!
+	check(!PawnData);
+
+	PawnData = InPawnData;
 }

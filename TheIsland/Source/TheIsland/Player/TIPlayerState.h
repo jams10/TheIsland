@@ -27,6 +27,11 @@ public:
 	// Experience가 로드 되었을 때 호출해줄 콜백 함수.	
 	void OnExperienceLoaded(const UTIExperienceDefinition* CurrentExperience);
 
+	// PawnData Getter, Setter 함수들.
+	template<class T>
+	const T* GetPawnData() const { return Cast<T>(PawnData); }
+	void SetPawnData(const UTIPawnData* InPawnData);
+
 	// 현재 사용중인 PawnData.
 	UPROPERTY()
 	TObjectPtr<const UTIPawnData> PawnData;

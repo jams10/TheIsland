@@ -127,3 +127,10 @@ void UTIExperienceManagerComponent::OnExperienceFullLoadCompleted()
 	OnExperienceLoaded.Broadcast(CurrentExperience);
 	OnExperienceLoaded.Clear();
 }
+
+const UTIExperienceDefinition* UTIExperienceManagerComponent::GetCurrentExperienceChecked() const
+{
+	check(LoadState == ETIExperienceLoadState::Loaded);
+	check(CurrentExperience != nullptr);
+	return CurrentExperience;
+}
