@@ -1,4 +1,6 @@
 ﻿#include "TIHeroComponent.h"
+#include "Components/GameFrameworkComponentManager.h"
+#include "TheIsland/Player/TIPlayerState.h"
 #include "TheIsland/TIGameplayTag.h"
 #include "TheIsland/TILogChannels.h"
 #include "TIPawnExtensionComponent.h"
@@ -53,4 +55,87 @@ void UTIHeroComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	UnregisterInitStateFeature();
 
 	Super::EndPlay(EndPlayReason);
+}
+
+void UTIHeroComponent::OnActorInitStateChanged(const FActorInitStateChangedParams& Params)
+{
+	const FTIGameplayTags& InitTags = FTIGameplayTags::Get();
+	// 바뀐 feature가 PawnExtension인지 확인.
+	if (Params.FeatureName == UTIPawnExtensionComponent::NAME_ActorFeatureName)
+	{
+		// PawnExtensionComponent의 상태가 DataInitialized인지 체크 후, DataInitialized이면 다음 상태로 전환 될 수 있도록 CheckDefaultInitialization() 함수 호출.
+		if (Params.FeatureState == InitTags.InitState_DataInitialized)
+		{
+			CheckDefaultInitialization();
+		}
+	}
+}
+
+bool UTIHeroComponent::CanChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState) const
+{
+	check(Manager);
+
+	const FTIGameplayTags& InitTags = FTIGameplayTags::Get();
+	APawn* Pawn = GetPawn<APawn>();
+	ATIPlayerState* PS = GetPlayerState<ATIPlayerState>();
+
+	// None -> Spawned 상태로 전환 가능한지 체크.
+	if (!CurrentState.IsValid() && DesiredState == InitTags.InitState_Spawned)
+	{
+		// Pawn이 유효한 경우 전환 가능.
+		if (Pawn)
+		{
+			return true;
+		}
+	}
+
+	// Spawned -> DataAvailable 상태로 전환 가능한지 체크.
+	if (CurrentState == InitTags.InitState_Spawned && DesiredState == InitTags.InitState_DataAvailable)
+	{
+		// PlayerState가 유효한 경우 전환 가능.
+		if (!PS)
+		{
+			return false;
+		}
+		return true;
+	}
+
+	// DataAvailable -> DataInitialized 상태로 전환 가능한지 체크.
+	if (CurrentState == InitTags.InitState_DataAvailable && DesiredState == InitTags.InitState_DataInitialized)
+	{
+		// 즉, 모든 feature들이 DataAvailable이 되어 PawnExtensionComponent의 상태가 DataInitialized가 되었을 때 비로소 HeroComponent도 DataInitialized 상태로 전환.
+		return PS && Manager->HasFeatureReachedInitState(Pawn, UTIPawnExtensionComponent::NAME_ActorFeatureName, InitTags.InitState_DataInitialized);
+	}
+
+	// DataInitialized -> GameplayReady 상태로 전환 가능한지 체크.
+	if (CurrentState == InitTags.InitState_DataInitialized && DesiredState == InitTags.InitState_GameplayReady)
+	{
+		// 현재 상태가 DataInitialized인 경우에 전환 가능.
+		return true;
+	}
+
+	return false;
+}
+
+void UTIHeroComponent::CheckDefaultInitialization()
+{
+	// 그냥 ContinueInitStateChain() 함수를 호출해서 다음 InitState로 변경 가능한 경우 변경.
+	const FTIGameplayTags& InitTags = FTIGameplayTags::Get();
+	static const TArray<FGameplayTag> StateChain = { InitTags.InitState_Spawned, InitTags.InitState_DataAvailable, InitTags.InitState_DataInitialized, InitTags.InitState_GameplayReady };
+	ContinueInitStateChain(StateChain);
+}
+
+void UTIHeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState)
+{
+	const FTIGameplayTags InitTags = FTIGameplayTags::Get();
+	// 현재 상태가 DataAvailable이고, 전환 하고자 하는 상태가 DataInitialized이면, 작업을 처리함.
+	if (CurrentState == InitTags.InitState_DataAvailable && DesiredState == InitTags.InitState_DataInitialized)
+	{
+		APawn* Pawn = GetPawn<APawn>();
+		ATIPlayerState* PS = GetPlayerState<ATIPlayerState>();
+		if (!ensure(Pawn && PS))
+		{
+			return;
+		}
+	}
 }

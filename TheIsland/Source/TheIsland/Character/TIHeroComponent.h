@@ -33,4 +33,12 @@ public:
 	*/
 	// FeatureName을 정의했다면 반드시 GetFeatureName() 오버라이딩 해주어야 InitState 시스템에 등록할 수 있음.
 	virtual FName GetFeatureName() const final { return NAME_ActorFeatureName; }
+	// 관찰하는 feature의 특정 InitState가 변경 되었을 때 호출되는 함수.
+	virtual void OnActorInitStateChanged(const FActorInitStateChangedParams& Params) final;
+	// InitState 변경이 가능한지 여부를 체크하는 함수.
+	virtual bool CanChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState) const final;
+	// 강제로 InitState 단계를 따라 InitState 변경이 가능한지 체크 후 InitState를 업데이트 하는 함수.
+	virtual void CheckDefaultInitialization() final;
+	// InitState가 변경 되었을 때 같이 호출되는 함수. InitState 변경 시 처리해줄 작업이 처리되는 곳임. HeroComponent에서는 입력과 카메라 관련 초기화를 수행함.
+	virtual void HandleChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState) final;
 };

@@ -2,6 +2,7 @@
 #include "TIGameState.h"
 #include "TheIsland/Character/TICharacter.h"
 #include "TheIsland/Character/TIPawnData.h"
+#include "TheIsland/Character/TIPawnExtensionComponent.h"
 #include "TheIsland/Player/TIPlayerController.h"
 #include "TheIsland/Player/TIPlayerState.h"
 #include "TheIsland/TILogChannels.h"
@@ -84,8 +85,31 @@ void ATIGameMode::OnExperienceLoaded(const UTIExperienceDefinition* CurrentExper
 
 APawn* ATIGameMode::SpawnDefaultPawnAtTransform_Implementation(AController* NewPlayer, const FTransform& SpawnTransform)
 {
-	UE_LOG(LogTI, Log, TEXT("SpawnDefaultPawnAtTransform_Implementation is called!"));
-	return Super::SpawnDefaultPawnAtTransform_Implementation(NewPlayer, SpawnTransform);
+	FActorSpawnParameters SpawnInfo;
+	SpawnInfo.Instigator = GetInstigator();
+	SpawnInfo.ObjectFlags |= RF_Transient;
+	SpawnInfo.bDeferConstruction = true;
+
+	// PawnData에 있는 PawnClass 얻어옴.
+	if (UClass* PawnClass = GetDefaultPawnClassForController(NewPlayer))
+	{
+		// Spawn이 성공 했으면, PawnExtensionComponent를 찾고, 해당 Component의 PawnData에 GetPawnDataForController()를 통해 가져온 PawnData를 세팅.
+		if (APawn* SpawnedPawn = GetWorld()->SpawnActor<APawn>(PawnClass, SpawnTransform, SpawnInfo))
+		{
+			// FindPawnExtensionComponent() 함수를 통해 PawnExtensionComponent에 접근, PlayerState에 설정한 PawnData를 설정해줌.
+			if (UTIPawnExtensionComponent* PawnExtComp = UTIPawnExtensionComponent::FindPawnExtensionComponent(SpawnedPawn))
+			{
+				if (const UTIPawnData* PawnData = GetPawnDataForController(NewPlayer))
+				{
+					PawnExtComp->SetPawnData(PawnData);
+				}
+			}
+			SpawnedPawn->FinishSpawning(SpawnTransform);
+			return SpawnedPawn;
+		}
+	}
+
+	return nullptr;
 }
 
 UClass* ATIGameMode::GetDefaultPawnClassForController_Implementation(AController* InController)
