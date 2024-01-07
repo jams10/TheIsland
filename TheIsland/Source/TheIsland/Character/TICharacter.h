@@ -4,6 +4,7 @@
 #include "TICharacter.generated.h"
 
 class UTIPawnExtensionComponent;
+class UTICameraComponent;
 
 UCLASS()
 class ATICharacter : public ACharacter
@@ -12,9 +13,12 @@ class ATICharacter : public ACharacter
 public:
 	ATICharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	/* ACharacter Interface */
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) final;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "TI|Character")
 	TObjectPtr<UTIPawnExtensionComponent> PawnExtComponent;
 
-	/* ACharacter Interface */
-	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) final;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LC|Character")
+	TObjectPtr<UTICameraComponent> CameraComponent;
 };
