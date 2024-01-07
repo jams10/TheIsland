@@ -14,4 +14,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "TI|Character")
 	TObjectPtr<UTIPawnExtensionComponent> PawnExtComponent;
+
+	/* ACharacter Interface */
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) final;
 };

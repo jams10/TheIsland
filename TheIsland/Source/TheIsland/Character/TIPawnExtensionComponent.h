@@ -29,6 +29,7 @@ public:
 	template<class T>
 	const T* GetPawnData() const { return Cast<T>(PawnData); }
 	void SetPawnData(const UTIPawnData* InPawnData);
+	// Character 클래스의 SetupPlayerInputComponent() 함수에 의해 호출되는 함수. 조건에 따라 중단된 InitState 단계를 계속 이어나가기 위해 호출.
 	void SetupPlayerInputComponent();
 
 	/*

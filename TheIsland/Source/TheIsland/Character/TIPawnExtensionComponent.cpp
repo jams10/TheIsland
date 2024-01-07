@@ -39,6 +39,8 @@ void UTIPawnExtensionComponent::SetPawnData(const UTIPawnData* InPawnData)
 
 void UTIPawnExtensionComponent::SetupPlayerInputComponent()
 {
+	// Controller가 Pawn을 Possess 했고, PlayerState도 유효해진 시점에서 초기화 상태 변경 작업을 이어나감.
+	CheckDefaultInitialization();
 }
 
 void UTIPawnExtensionComponent::OnRegister()
