@@ -24,6 +24,8 @@ public:
 	*/
 	// 컴포넌트가 액터에 부착된 이후 처음으로 호출되는 함수.
 	virtual void OnRegister() final;
+	virtual void BeginPlay() final;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) final;
 
 	/*
 	  IGameFrameworkInitStateInterface
