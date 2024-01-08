@@ -4,6 +4,8 @@
 #include "Engine/DataAsset.h"
 #include "TIPawnData.generated.h"
 
+class UTICameraMode;
+
 UCLASS(BlueprintType)
 class UTIPawnData : public UPrimaryDataAsset
 {
@@ -15,4 +17,8 @@ public:
 	// Spawn해서 조종할 Pawn 클래스.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TI|Pawn")
 	TSubclassOf<APawn> PawnClass;
+
+	// 카메라 모드
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TI|Camera")
+	TSubclassOf<UTICameraMode> DefaultCameraMode;
 };

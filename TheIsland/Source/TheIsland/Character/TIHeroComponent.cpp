@@ -1,5 +1,7 @@
 ﻿#include "TIHeroComponent.h"
 #include "Components/GameFrameworkComponentManager.h"
+#include "TheIsland/Camera/TICameraComponent.h"
+#include "TheIsland/Character/TIPawnData.h"
 #include "TheIsland/Player/TIPlayerState.h"
 #include "TheIsland/TIGameplayTag.h"
 #include "TheIsland/TILogChannels.h"
@@ -137,5 +139,42 @@ void UTIHeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* Man
 		{
 			return;
 		}
+
+		const bool bIsLocallyControlled = Pawn->IsLocallyControlled();
+		const UTIPawnData* PawnData = nullptr;
+		if (UTIPawnExtensionComponent* PawnExtComp = UTIPawnExtensionComponent::FindPawnExtensionComponent(Pawn))
+		{
+			PawnData = PawnExtComp->GetPawnData<UTIPawnData>();
+		}
+
+		if (bIsLocallyControlled && PawnData)
+		{
+			// 현재 Character에 Attach된 CameraComponent를 찾음.
+			if (UTICameraComponent* CameraComponent = UTICameraComponent::FindCameraComponent(Pawn))
+			{
+				// CameraComponent의 delegate에 CameraMode 클래스를 리턴하는 멤버 함수 바인딩.
+				CameraComponent->DetermineCameraModeDelegate.BindUObject(this, &ThisClass::DetermineCameraMode);
+			}
+		}
 	}
+}
+
+TSubclassOf<UTICameraMode> UTIHeroComponent::DetermineCameraMode() const
+{
+	const APawn* Pawn = GetPawn<APawn>();
+	if (!Pawn)
+	{
+		return nullptr;
+	}
+
+	// PawnExtensionComponent에서 PawnData를 PlayerState에서 가져와 들고 있으므로, PawnExtensionComponent에 접근해 PawnData 가져옴.
+	if (UTIPawnExtensionComponent* PawnExtComp = UTIPawnExtensionComponent::FindPawnExtensionComponent(Pawn))
+	{
+		if (const UTIPawnData* PawnData = PawnExtComp->GetPawnData<UTIPawnData>())
+		{
+			return PawnData->DefaultCameraMode;
+		}
+	}
+
+	return nullptr;
 }
