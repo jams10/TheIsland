@@ -5,6 +5,6 @@ ATIPlayerCameraManager::ATIPlayerCameraManager(const FObjectInitializer& ObjectI
 	:Super(ObjectInitializer)
 {
 	DefaultFOV = TI_CAMERA_DEFAULT_FOV;
-	ViewPitchMin = TI_CAMREA_DEFAULT_PITCH_MIN;
-	ViewPitchMax = TI_CAMREA_DEFAULT_PITCH_MAX;
+	ViewPitchMin = TI_CAMERA_DEFAULT_PITCH_MIN;
+	ViewPitchMax = TI_CAMERA_DEFAULT_PITCH_MAX;
 }

@@ -1,5 +1,6 @@
 ﻿#include "TIHeroComponent.h"
 #include "Components/GameFrameworkComponentManager.h"
+#include "TheIsland/Camera/TICameraMode.h"
 #include "TheIsland/Camera/TICameraComponent.h"
 #include "TheIsland/Character/TIPawnData.h"
 #include "TheIsland/Player/TIPlayerState.h"
@@ -161,6 +162,11 @@ void UTIHeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* Man
 
 TSubclassOf<UTICameraMode> UTIHeroComponent::DetermineCameraMode() const
 {
+	if (AbilityCameraMode)
+	{
+		return AbilityCameraMode;
+	}
+
 	const APawn* Pawn = GetPawn<APawn>();
 	if (!Pawn)
 	{

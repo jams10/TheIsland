@@ -4,8 +4,8 @@
 #include "TIPlayerCameraManager.generated.h"
 
 #define TI_CAMERA_DEFAULT_FOV 80.f
-#define TI_CAMREA_DEFAULT_PITCH_MIN -89.0f
-#define TI_CAMREA_DEFAULT_PITCH_MAX 89.0f
+#define TI_CAMERA_DEFAULT_PITCH_MIN -89.0f
+#define TI_CAMERA_DEFAULT_PITCH_MAX 89.0f
 
 /*
 *   ATIPlayerCameraManager

@@ -44,9 +44,13 @@ public:
 	// InitState가 변경 되었을 때 같이 호출되는 함수. InitState 변경 시 처리해줄 작업이 처리되는 곳임. HeroComponent에서는 입력과 카메라 관련 초기화를 수행함.
 	virtual void HandleChangeInitState(UGameFrameworkComponentManager* Manager, FGameplayTag CurrentState, FGameplayTag DesiredState) final;
 
-	/*
-		member functions
-	*/
+protected:
 	// CameraComponent에서 사용할 CameraMode 클래스를 리턴 해주는 함수.
 	TSubclassOf<UTICameraMode> DetermineCameraMode() const;
+
+protected:
+
+	// Ability에 의해 세팅된 CameraMode.
+	UPROPERTY()
+	TSubclassOf<UTICameraMode> AbilityCameraMode;
 };

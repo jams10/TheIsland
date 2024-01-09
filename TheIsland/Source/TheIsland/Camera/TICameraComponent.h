@@ -38,6 +38,8 @@ public:
 	*/
 	// 실제로 CameraModeStack에 있는 현재 활성화된 CameraMode들을 업데이트하는 함수.
 	void UpdateCameraModes();
+	// 카메라가 보고있는 대상인 TargetActor를 리턴하는 함수. 카메라 모드들은 TargetActor를 기반으로 위치와 회전 값을 가짐.
+	virtual AActor* GetTargetActor() const { return GetOwner(); }
 
 	/*
 		member variables
