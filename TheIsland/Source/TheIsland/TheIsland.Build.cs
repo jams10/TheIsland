@@ -13,6 +13,7 @@ public class TheIsland : ModuleRules
 			"CoreUObject", 
 			"Engine", 
 			"InputCore",
+            "EnhancedInput",
 			// GAS
 			"GameplayTags",
 			// Game Feature
