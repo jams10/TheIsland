@@ -5,6 +5,7 @@
 #include "TIPawnData.generated.h"
 
 class UTICameraMode;
+class UTIInputConfig;
 
 UCLASS(BlueprintType)
 class UTIPawnData : public UPrimaryDataAsset
@@ -21,4 +22,8 @@ public:
 	// 카메라 모드
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TI|Camera")
 	TSubclassOf<UTICameraMode> DefaultCameraMode;
+
+	// Input Config 애셋.
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "TI|InputConfig")
+	TObjectPtr<UTIInputConfig> InputConfig;
 };
