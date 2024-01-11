@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include "EnhancedInputComponent.h"
 #include "InputTriggers.h"
@@ -8,7 +8,7 @@
 
 /*
 *	UTIInputComponent
-*	InputConfig¿¡ ÀÖ´Â InputAction°ú ÅÂ±×ÀÇ Â¦À» ÀÌ¿ë, InputAction°ú ÀÔ·Â¿¡ µû¶ó ½ÇÇàµÉ ÇÔ¼ö¸¦ ¹ÙÀÎµù ÇÏ´Â ÇÔ¼ö¸¦ Á¦°øÇÏ´Â ÄÄÆ÷³ÍÆ®.
+*	InputConfigì— ìžˆëŠ” InputActionê³¼ íƒœê·¸ì˜ ì§ì„ ì´ìš©, InputActionê³¼ ìž…ë ¥ì— ë”°ë¼ ì‹¤í–‰ë  í•¨ìˆ˜ë¥¼ ë°”ì¸ë”© í•˜ëŠ” í•¨ìˆ˜ë¥¼ ì œê³µí•˜ëŠ” ì»´í¬ë„ŒíŠ¸.
 */
 UCLASS()
 class UTIInputComponent : public UEnhancedInputComponent
@@ -30,8 +30,8 @@ void UTIInputComponent::BindNativeAction(const UTIInputConfig* InputConfig, cons
 {
 	check(InputConfig);
 
-	// ¿©±â¼­ ¾Ë ¼ö ÀÖµíÀÌ InputConfig´Â È°¼ºÈ­ °¡´ÉÇÑ InputActionÀ» ´ã°í ÀÖ´Ù.
-	// - ¸¸¾à InputConfig¿¡ ¾ø´Â InpucActionÀ» Binding ½ÃÅ°¸é, nullptr¸¦ ¹ÝÈ¯ÇÏ¿©, ¹ÙÀÎµùÇÏ´Âµ¥ ½ÇÆÐÇÏ°Ô µÈ´Ù.
+	// ì—¬ê¸°ì„œ ì•Œ ìˆ˜ ìžˆë“¯ì´ InputConfigëŠ” í™œì„±í™” ê°€ëŠ¥í•œ InputActionì„ ë‹´ê³  ìžˆë‹¤.
+	// - ë§Œì•½ InputConfigì— ì—†ëŠ” InpucActionì„ Binding ì‹œí‚¤ë©´, nullptrë¥¼ ë°˜í™˜í•˜ì—¬, ë°”ì¸ë”©í•˜ëŠ”ë° ì‹¤íŒ¨í•˜ê²Œ ëœë‹¤.
 	if (const UInputAction* IA = InputConfig->FindNativeInputActionForTag(InputTag, bLogIfNotFound))
 	{
 		BindAction(IA, TriggerEvent, Object, Func);
@@ -43,7 +43,7 @@ void UTIInputComponent::BindAbilityActions(const UTIInputConfig* InputConfig, Us
 {
 	check(InputConfig);
 
-	// AbilityAction¿¡ ´ëÇØ¼­´Â ±×³É ¸ðµç InputAction¿¡ ´Ù ¹ÙÀÎµù ½ÃÅ´.
+	// AbilityActionì— ëŒ€í•´ì„œëŠ” ê·¸ëƒ¥ ëª¨ë“  InputActionì— ë‹¤ ë°”ì¸ë”© ì‹œí‚´.
 	for (const FTIInputAction& Action : InputConfig->AbilityInputActions)
 	{
 		if (Action.InputAction && Action.InputTag.IsValid())
