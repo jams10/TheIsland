@@ -29,12 +29,64 @@ void UTICameraComponent::UpdateCameraModes()
 	{
 		if (const TSubclassOf<UTICameraMode> CameraMode = DetermineCameraModeDelegate.Execute())
 		{
-			// CameraModeStack->PushCameraMode(CameraMode);
+			CameraModeStack->PushCameraMode(CameraMode);
 		}
 	}
 }
 
 void UTICameraComponent::GetCameraView(float DeltaTime, FMinimalViewInfo& DesiredView)
 {
+	check(CameraModeStack);
+
+	// PushCameraMode() 함수 호출을 통해 현재 활성화된 CameraMode를 CameraModeStack의 최상단으로 옮겨줌.
 	UpdateCameraModes();
+
+	// CameraModeStack에 있는 CameraMode를 BlendWeight를 통해 블렌딩, 블렌딩 결과를 통해 카메라 시점을 계산함.
+	FTICameraModeView CameraModeView;
+	CameraModeStack->EvaluateStack(DeltaTime, CameraModeView); // 시점 계산 결과를 CameraModeView로 받아줌. 
+
+	// Keep player controller in sync with the latest view.
+    // 컨트롤러의 회전 값을 최신 View 결과와 맞춰줌.
+	if (APawn* TargetPawn = Cast<APawn>(GetTargetActor()))
+	{
+		if (APlayerController* PC = TargetPawn->GetController<APlayerController>())
+		{
+			PC->SetControlRotation(CameraModeView.ControlRotation);
+		}
+	}
+
+	// Apply any offset that was added to the field of view.
+    // FOV 오프셋 값을 적용해줌.
+	CameraModeView.FieldOfView += FieldOfViewOffset;
+	FieldOfViewOffset = 0.0f;
+
+	// Keep camera component in sync with the latest view.
+    // 카메라 컴포넌트의 트랜스폼 값을 최신 View 결과와 맞춰줌.
+	SetWorldLocationAndRotation(CameraModeView.Location, CameraModeView.Rotation);
+	FieldOfView = CameraModeView.FieldOfView;
+
+	// Fill in desired view.
+	DesiredView.Location = CameraModeView.Location;
+	DesiredView.Rotation = CameraModeView.Rotation;
+	DesiredView.FOV = CameraModeView.FieldOfView;
+	DesiredView.OrthoWidth = OrthoWidth;
+	DesiredView.OrthoNearClipPlane = OrthoNearClipPlane;
+	DesiredView.OrthoFarClipPlane = OrthoFarClipPlane;
+	DesiredView.AspectRatio = AspectRatio;
+	DesiredView.bConstrainAspectRatio = bConstrainAspectRatio;
+	DesiredView.bUseFieldOfViewForLOD = bUseFieldOfViewForLOD;
+	DesiredView.ProjectionMode = ProjectionMode;
+
+	// See if the CameraActor wants to override the PostProcess settings used.
+	DesiredView.PostProcessBlendWeight = PostProcessBlendWeight;
+	if (PostProcessBlendWeight > 0.0f)
+	{
+		DesiredView.PostProcessSettings = PostProcessSettings;
+	}
+
+	//if (IsXRHeadTrackedCamera())
+	//{
+	//	// In XR much of the camera behavior above is irrellevant, but the post process settings are not.
+	//	Super::GetCameraView(DeltaTime, DesiredView);
+	//}
 }

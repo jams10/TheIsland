@@ -41,13 +41,17 @@ public:
 	// 카메라가 보고있는 대상인 TargetActor를 리턴하는 함수. 카메라 모드들은 TargetActor를 기반으로 위치와 회전 값을 가짐.
 	virtual AActor* GetTargetActor() const { return GetOwner(); }
 
-	/*
-		member variables
-	*/
+	// Add an offset to the field of view.  The offset is only for one frame, it gets cleared once it is applied.
+	void AddFieldOfViewOffset(float FovOffset) { FieldOfViewOffset += FovOffset; }
+
+	// 현재 CameraMode 클래스를 가져오는 Delegate
+	FTICameraModeDeletage DetermineCameraModeDelegate;
+
+protected:
 	// 카메라의 blending 기능을 지원하는 stack.
 	UPROPERTY()
 	TObjectPtr<UTICameraModeStack> CameraModeStack;
 
-	// 현재 CameraMode 클래스를 가져오는 Delegate
-	FTICameraModeDeletage DetermineCameraModeDelegate;
+	// Offset applied to the field of view.  The offset is only for one frame, it gets cleared once it is applied.
+	float FieldOfViewOffset;
 };
