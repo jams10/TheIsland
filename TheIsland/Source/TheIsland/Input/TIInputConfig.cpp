@@ -1,4 +1,4 @@
-// Copyright jams10. All Rights Reserved.
+﻿// Copyright jams10. All Rights Reserved.
 
 
 #include "TIInputConfig.h"

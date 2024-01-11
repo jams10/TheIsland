@@ -1,4 +1,4 @@
-// Copyright jams10. All Rights Reserved.
+ï»¿// Copyright jams10. All Rights Reserved.
 
 #pragma once
 
@@ -12,7 +12,7 @@ class UInputAction;
 
 /*
 *	FTIInputAction
-*	InputActionÀ» GameplayTag¿Í ¸ÅÇÎ ½ÃÄÑÁÖ´Â ·¡ÆÛ ±¸Á¶Ã¼.
+*	InputActionì„ GameplayTagì™€ ë§¤í•‘ ì‹œì¼œì£¼ëŠ” ë˜í¼ êµ¬ì¡°ì²´.
 */
 USTRUCT(BlueprintType)
 struct FTIInputAction
@@ -30,7 +30,7 @@ public:
 
 /**
  *	UTIInputConfig
- *	GameplayTag¿¡ ¸ÅÇÎµÈ ÀÏ¹İ ÀÔ·Â¿¡ ´ëÇÑ InputAction°ú Ability¸¦ À§ÇÑ InputActionµé·Î ±¸¼ºµÈ µ¥ÀÌÅÍ ¾Ö¼Â.
+ *	GameplayTagì— ë§¤í•‘ëœ ì¼ë°˜ ì…ë ¥ì— ëŒ€í•œ InputActionê³¼ Abilityë¥¼ ìœ„í•œ InputActionë“¤ë¡œ êµ¬ì„±ëœ ë°ì´í„° ì• ì…‹.
  */
 UCLASS(BlueprintType, Const)
 class THEISLAND_API UTIInputConfig : public UDataAsset
@@ -41,18 +41,20 @@ public:
 
 	UTIInputConfig(const FObjectInitializer& ObjectInitializer);
 
+	// ì£¼ì–´ì§„ íƒœê·¸ì— í•´ë‹¹ë˜ëŠ” ì¼ë°˜ ì…ë ¥ìš© InputActionì„ ë¦¬í„´í•˜ëŠ” í•¨ìˆ˜.
 	UFUNCTION(BlueprintCallable, Category = "Lyra|Pawn")
 	const UInputAction* FindNativeInputActionForTag(const FGameplayTag& InputTag, bool bLogNotFound = true) const;
 
+	// ì£¼ì–´ì§„ íƒœê·¸ì— í•´ë‹¹ë˜ëŠ” Abilityìš© InputActionì„ ë¦¬í„´í•˜ëŠ” í•¨ìˆ˜.
 	UFUNCTION(BlueprintCallable, Category = "Lyra|Pawn")
 	const UInputAction* FindAbilityInputActionForTag(const FGameplayTag& InputTag, bool bLogNotFound = true) const;
 
 public:
-	// List of input actions used by the owner.  These input actions are mapped to a gameplay tag and must be manually bound.
+	// GameplayTagì™€ ë§¤í•‘ë˜ëŠ” ì¼ë°˜ InputAction ë°°ì—´.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (TitleProperty = "InputAction"))
 	TArray<FTIInputAction> NativeInputActions;
 
-	// List of input actions used by the owner.  These input actions are mapped to a gameplay tag and are automatically bound to abilities with matching input tags.
+	// GameplayTagì™€ ë§¤í•‘ë˜ëŠ” Abilityìš© InputAction ë°°ì—´.
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Meta = (TitleProperty = "InputAction"))
 	TArray<FTIInputAction> AbilityInputActions;
 };
