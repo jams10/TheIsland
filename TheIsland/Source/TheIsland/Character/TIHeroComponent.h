@@ -4,7 +4,10 @@
 #include "Components/PawnComponent.h"
 #include "TIHeroComponent.generated.h"
 
-class UTICameraMode;
+struct FInputActionValue;
+struct FTIMappableConfigPair;
+class UTICameraMode; 
+class UInputComponent;
 
 /*
 *	TIHeroComponent
@@ -48,9 +51,22 @@ protected:
 	// CameraComponent에서 사용할 CameraMode 클래스를 리턴 해주는 함수.
 	TSubclassOf<UTICameraMode> DetermineCameraMode() const;
 
+	// 입력 초기화 함수. InputComponent의 함수들을 이용하여 InputAction과 콜백 함수들을 바인딩 해줌.
+	void InitializePlayerInput(UInputComponent* PlayerInputComponent);
+
+	/* InputAction에 바인딩 해줄 콜백 함수들. */ 
+	// 플레이어 이동 처리 함수.
+	void Input_Move(const FInputActionValue& InputActionValue);
+	// 플레이어 시점(카메라) 이동 처리 함수.
+	void Input_LookMouse(const FInputActionValue& InputActionValue);
+
 protected:
 
 	// Ability에 의해 세팅된 CameraMode.
 	UPROPERTY()
 	TSubclassOf<UTICameraMode> AbilityCameraMode;
+
+	// 내부에 PlayerMappableInputConfig를 들고 있는 구조체.
+	UPROPERTY(EditAnywhere)
+	TArray<FTIMappableConfigPair> DefaultInputConfigs;
 };

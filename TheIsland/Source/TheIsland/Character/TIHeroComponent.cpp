@@ -1,12 +1,17 @@
 ﻿#include "TIHeroComponent.h"
 #include "Components/GameFrameworkComponentManager.h"
+#include "EnhancedInputSubsystems.h"
 #include "TheIsland/Camera/TICameraMode.h"
 #include "TheIsland/Camera/TICameraComponent.h"
 #include "TheIsland/Character/TIPawnData.h"
+#include "TheIsland/Input/TIMappableConfigPair.h"
+#include "TheIsland/Input/TIInputComponent.h"
 #include "TheIsland/Player/TIPlayerState.h"
+#include "TheIsland/Player/TIPlayerController.h"
 #include "TheIsland/TIGameplayTag.h"
 #include "TheIsland/TILogChannels.h"
 #include "TIPawnExtensionComponent.h"
+#include "PlayerMappableInputConfig.h"
 #include UE_INLINE_GENERATED_CPP_BY_NAME(TIHeroComponent)
 
 const FName UTIHeroComponent::NAME_ActorFeatureName("Hero");
@@ -141,6 +146,7 @@ void UTIHeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* Man
 			return;
 		}
 
+		// PawnExtensionComponent로부터 PawnData 얻어오기.
 		const bool bIsLocallyControlled = Pawn->IsLocallyControlled();
 		const UTIPawnData* PawnData = nullptr;
 		if (UTIPawnExtensionComponent* PawnExtComp = UTIPawnExtensionComponent::FindPawnExtensionComponent(Pawn))
@@ -148,6 +154,7 @@ void UTIHeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* Man
 			PawnData = PawnExtComp->GetPawnData<UTIPawnData>();
 		}
 
+		// 카메라 모드 설정.
 		if (bIsLocallyControlled && PawnData)
 		{
 			// 현재 Character에 Attach된 CameraComponent를 찾음.
@@ -155,6 +162,17 @@ void UTIHeroComponent::HandleChangeInitState(UGameFrameworkComponentManager* Man
 			{
 				// CameraComponent의 delegate에 CameraMode 클래스를 리턴하는 멤버 함수 바인딩.
 				CameraComponent->DetermineCameraModeDelegate.BindUObject(this, &ThisClass::DetermineCameraMode);
+			}
+		}
+
+		// 입력 설정.
+		if (ATIPlayerController* PC = GetController<ATIPlayerController>())
+		{
+			if (Pawn->InputComponent != nullptr)
+			{
+				// 우리가 프로젝트 설정을 통해 기본 Input Component를 우리가 만든 커스텀 Input Component인 TIInputComponent로 설정 했으므로,
+				// Pawn->InputComponent = TIInputComponent가 됨.
+				InitializePlayerInput(Pawn->InputComponent);
 			}
 		}
 	}
@@ -183,4 +201,117 @@ TSubclassOf<UTICameraMode> UTIHeroComponent::DetermineCameraMode() const
 	}
 
 	return nullptr;
+}
+
+void UTIHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputComponent)
+{
+	check(PlayerInputComponent);
+
+	const APawn* Pawn = GetPawn<APawn>();
+	if (!Pawn)
+	{
+		return;
+	}
+
+	// LocalPlayer를 가져오기 위해.
+	const APlayerController* PC = GetController<APlayerController>();
+	check(PC);
+
+	// EnhancedInputLocalPlayerSubsystem을 가져오기 위해.
+	const ULocalPlayer* LP = PC->GetLocalPlayer();
+	check(LP);
+
+	UEnhancedInputLocalPlayerSubsystem* Subsystem = LP->GetSubsystem<UEnhancedInputLocalPlayerSubsystem>();
+	check(Subsystem);
+
+	// EnhancedInputLocalPlayerSubsystem의 MappingContext를 비워줌.
+	Subsystem->ClearAllMappings();
+
+	// PawnExtensionComponent -> PawnData -> InputConfig 존재 유무 판단.
+	if (const UTIPawnExtensionComponent* PawnExtComp = UTIPawnExtensionComponent::FindPawnExtensionComponent(Pawn))
+	{
+		if (const UTIPawnData* PawnData = PawnExtComp->GetPawnData<UTIPawnData>())
+		{
+			if (const UTIInputConfig* InputConfig = PawnData->InputConfig)
+			{
+				const FTIGameplayTags& GameplayTags = FTIGameplayTags::Get();
+
+				// HeroComponent가 가지고 있는 Input Mapping Context를 순회하며, EnhancedInputLocalPlayerSubsystem에 추가.
+				for (const FTIMappableConfigPair& Pair : DefaultInputConfigs)
+				{
+					if (Pair.bShouldActivateAutomatically)
+					{
+						FModifyContextOptions Options = {};
+						Options.bIgnoreAllPressedKeysUntilRelease = false;
+
+						// 내부적으로 Input Mapping Context를 추가함.
+						Subsystem->AddPlayerMappableConfig(Pair.Config.LoadSynchronous(), Options);
+					}
+				}
+
+				UTIInputComponent* IC = CastChecked<UTIInputComponent>(PlayerInputComponent);
+				
+				// InputTag_Move와 InputTag_Look_Mouse에 대해 각각 Input_Move()와 Input_LookMouse() 멤버 함수에 바인딩 시킴.
+				// - 바인딩 한 이후, Input 이벤트에 따라 멤버 함수가 트리거 됨.			
+				IC->BindNativeAction(InputConfig, GameplayTags.InputTag_Move, ETriggerEvent::Triggered, this, &ThisClass::Input_Move, false);				
+				IC->BindNativeAction(InputConfig, GameplayTags.InputTag_Look_Mouse, ETriggerEvent::Triggered, this, &ThisClass::Input_LookMouse, false);
+			}
+		}
+	}
+}
+
+void UTIHeroComponent::Input_Move(const FInputActionValue& InputActionValue)
+{
+	APawn* Pawn = GetPawn<APawn>();
+	AController* Controller = Pawn ? Pawn->GetController() : nullptr;
+
+	if (Controller)
+	{
+		const FVector2D Value = InputActionValue.Get<FVector2D>();
+		const FRotator MovementRotation(0.0f, Controller->GetControlRotation().Yaw, 0.0f);
+
+		if (Value.X != 0.0f)
+		{
+			// Left/Right -> x 값에 들어 있음.
+			// MovementDirection은 현재 카메라의 RightVector를 의미함. (World-Space) local -> world
+			// 월드 (0,0,0) 기준 right vector를 캐릭터의 회전에 맞춰 회전 시킴.
+			const FVector MovementDirection = MovementRotation.RotateVector(FVector::RightVector);
+
+			// AddMovementInput 함수를 한번 보자.
+			// - 내부적으로 MovementDirection * Value.X를 MovementComponent에 적용(더하기)해준다.
+			Pawn->AddMovementInput(MovementDirection, Value.X);
+		}
+
+		if (Value.Y != 0.0f) // 앞서 우리는 Forward 적용을 위해 swizzle input modifier를 사용 했음.
+		{
+			// 앞서 Left/Right와 마찬가지로 Forward/Backward를 적용.
+			const FVector MovementDirection = MovementRotation.RotateVector(FVector::ForwardVector);
+			Pawn->AddMovementInput(MovementDirection, Value.Y);
+		}
+	}
+}
+
+void UTIHeroComponent::Input_LookMouse(const FInputActionValue& InputActionValue)
+{
+	APawn* Pawn = GetPawn<APawn>();
+	if (!Pawn)
+	{
+		return;
+	}
+
+	const FVector2D Value = InputActionValue.Get<FVector2D>();
+
+	if (Value.X != 0.0f)
+	{
+		// X에는 Yaw 값이 있음.
+		// - Camera에 대해  Yaw 적용.
+		Pawn->AddControllerYawInput(Value.X);
+	}
+
+	if (Value.Y != 0.0f)
+	{
+		// Y에는 Pitch 값이 있음.
+		double AimInverseValue = -Value.Y;
+		Pawn->AddControllerPitchInput(AimInverseValue);
+	}
 }
