@@ -25,6 +25,6 @@ public:
 	FPrimaryAssetId ExperienceID;
 
 	// Map 로딩 및 Experience 전환을 위해, MapID와 ExperienceID를 활용하여, HostSessionRequest를 생성하는 함수.
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintCallable, BlueprintPure = false) // 실행 핀이 있도록 BlueprintPure 함수가 되지 않도록 함.
 	UCommonSession_HostSessionRequest* CreateHostingRequest() const;
 };
