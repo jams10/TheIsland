@@ -1,8 +1,11 @@
 ﻿#include "TIExperienceManagerComponent.h"
+#include "GameFeatureAction.h"
 #include "GameFeaturesSubsystem.h"
 #include "GameFeaturesSubsystemSettings.h"
 #include "TIExperienceDefinition.h"
 #include "TheIsland/System/TIAssetManager.h"
+#include "TIExperienceActionSet.h"
+
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(TIExperienceManagerComponent)
 
@@ -175,6 +178,46 @@ void UTIExperienceManagerComponent::OnGameFeaturePluginLoadComplete(const UE::Ga
 void UTIExperienceManagerComponent::OnExperienceFullLoadCompleted()
 {
 	check(LoadState != ETIExperienceLoadState::Loaded);
+
+	// Experience, GameFeature Plugin의 로딩과 활성화 이후, GameFeature Action들을 활성화 시키자.
+	{
+		LoadState = ETIExperienceLoadState::ExecutingActions;
+
+		// GameFeatureAction 활성화를 위한 Context 준비.
+		FGameFeatureActivatingContext Context;
+		{
+			// 월드의 핸들을 세팅해줌.
+			const FWorldContext* ExistingWorldContext = GEngine->GetWorldContextFromWorld(GetWorld());
+			if (ExistingWorldContext)
+			{
+				Context.SetRequiredWorldContextHandle(ExistingWorldContext->ContextHandle);
+			}
+		}
+
+		// GameFeatureAction 배열을 인자로 받아서 배열에 있는 Action들을 로드하는 람다 함수.
+		auto ActivateListOfActions = [&Context](const TArray<UGameFeatureAction*>& ActionList)
+			{
+				for (UGameFeatureAction* Action : ActionList)
+				{
+					// 명시적으로 GameFeatureAction에 대해 Registering -> Loading -> Activating 순으로 호출함.
+					if (Action)
+					{
+						Action->OnGameFeatureRegistering();
+						Action->OnGameFeatureLoading();
+						Action->OnGameFeatureActivating(Context);
+					}
+				}
+			};
+
+		// 1. Experience의 Action들을 로드.
+		ActivateListOfActions(CurrentExperience->Actions);
+
+		// 2. Experience의 ActionSet에 있는 Action들을 로드.
+		for (const TObjectPtr<UTIExperienceActionSet>& ActionSet : CurrentExperience->ActionSets)
+		{
+			ActivateListOfActions(ActionSet->Actions);
+		}
+	}
 
 	// Experience가 로드 되었으므로 로딩 상태를 Loaded로 바꿔주고, OnExperienceLoaded 멀티 캐스트 델리게이트에 등록된 델리게이트들에 모두 broadcast.
 	LoadState = ETIExperienceLoadState::Loaded;

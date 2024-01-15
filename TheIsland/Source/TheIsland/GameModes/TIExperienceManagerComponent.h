@@ -12,6 +12,7 @@ enum class ETIExperienceLoadState
 	Unloaded,
 	Loading,
 	LoadingGameFeatures,
+	ExecutingActions,
 	Loaded,
 	Deactivating,
 };
