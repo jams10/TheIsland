@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/GameStateComponent.h"
+#include "GameFeaturePluginOperationResult.h"
 #include "TIExperienceManagerComponent.generated.h"
 
 class UTIExperienceDefinition;
@@ -10,6 +11,7 @@ enum class ETIExperienceLoadState
 {
 	Unloaded,
 	Loading,
+	LoadingGameFeatures,
 	Loaded,
 	Deactivating,
 };
@@ -38,12 +40,18 @@ public:
 	bool IsExperienceLoaded() { return  (LoadState == ETIExperienceLoadState::Loaded) && (CurrentExperience != nullptr); }
 	// ExperienceDefinition 블루프린트 클래스를 정적 로드하고, 그 CDO를 CurrentExperience로 설정하는 함수.
 	void ServerSetCurrentExperience(FPrimaryAssetId ExperienceId);
-	// ExperienceDefinition 로드를 시작하는 함수.
+	// Experience 로드를 시작하는 함수.
 	void StartExperienceLoad();
+	// Experience를 로드하고 난 뒤 호출하는 함수. GameFeature 플러그인 로드.
 	void OnExperienceLoadComplete();
+	// GameFeature 플러그인이 로드 & 활성화 되었을 때 호출되는 함수.
+	void OnGameFeaturePluginLoadComplete(const UE::GameFeatures::FResult& Result);
+	// 필요한 모든 것들 (Experience, GameFeature 등)이 로드 되고 난 이후에 호출되는 함수.
 	void OnExperienceFullLoadCompleted();
 	// 로드된 Experience를 리턴하는 함수.
 	const UTIExperienceDefinition* GetCurrentExperienceChecked() const;
+
+protected:
 
 	// 현재 적용된 Experience. 
 	// TODO : 멀티플레이어를 고려할 경우, Lyra에서 처럼 replicated 변수로 만들어 줘야 함.
@@ -55,4 +63,9 @@ public:
 
 	// Experience 로딩이 완료된 이후 호출해줄 Delegate.
 	FOnTIExperienceLoaded OnExperienceLoaded;
+
+	// 로드할 GameFeaturePlugin 개수.
+	int32 NumGameFeaturePluginsLoading = 0;
+	// 활성화된 GameFeature Plugin들.
+	TArray<FString> GameFeaturePluginURLs;
 };

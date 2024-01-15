@@ -1,4 +1,5 @@
 ﻿#include "TIExperienceManagerComponent.h"
+#include "GameFeaturesSubsystem.h"
 #include "GameFeaturesSubsystemSettings.h"
 #include "TIExperienceDefinition.h"
 #include "TheIsland/System/TIAssetManager.h"
@@ -115,7 +116,60 @@ void UTIExperienceManagerComponent::OnExperienceLoadComplete()
 {
 	// 이 함수는 FStreamableHandle::ExecuteDelegate() 함수 내부에서 생성한 FStreamableDelegateDelayHelper 인스턴스에 의해 호출됨.
 
-	OnExperienceFullLoadCompleted();
+	check(LoadState == ETIExperienceLoadState::Loading);
+	check(CurrentExperience);
+
+	/** GameFeature 로딩 **/
+
+	// 이전 활성화된 GameFeature Plugin의 URL을 클리어해줌.
+	GameFeaturePluginURLs.Reset();
+
+	// ExperienceDefinition에 있는(우리가 추가해준) GameFeature의 이름들을 수집해서 GAmeFeaturePluginURLs에 추가해주는 람다 함수 정의.
+	auto CollectGameFeaturePluginURLs = [This = this](const UPrimaryDataAsset* Context, const TArray<FString>& FeaturePluginList)
+		{
+			// 인자로 들어온 FeaturePluginList를 순회하며, PluginURL을 ExperienceManagerComponent의 GameFeaturePluginURLs에 추가해줌.
+			for (const FString& PluginName : FeaturePluginList)
+			{
+				FString PluginURL;
+				if (UGameFeaturesSubsystem::Get().GetPluginURLByName(PluginName, PluginURL))
+				{
+					This->GameFeaturePluginURLs.AddUnique(PluginURL);
+				}
+			}
+		};
+
+	// GameFeaturesToEnable에 있는 Plugin만 일단 활성화할 GameFeature Plugin 후보군으로 등록. GameFeaturePluginURLs 문자열 배열에 채워줌.
+	CollectGameFeaturePluginURLs(CurrentExperience, CurrentExperience->GameFeaturesToEnable);
+
+	// GameFeaturePluginURLs에 등록된 Plugin을 로딩 및 활성화.
+	NumGameFeaturePluginsLoading = GameFeaturePluginURLs.Num();
+	if (NumGameFeaturePluginsLoading)
+	{
+		// GameFeature 플러그인들을 로드할 것이므로 loadstate를 변경함.
+		LoadState = ETIExperienceLoadState::LoadingGameFeatures;
+		for (const FString& PluginURL : GameFeaturePluginURLs)
+		{
+			// 주어진 URL을 사용하여 GameFeature 플러그인을 하나씩 로드 & 활성화.
+			// 매번 Plugin이 로딩 및 활성화 되고 난 이후, 호출할 OnGameFeaturePluginLoadComplete 콜백 함수 등록.
+			UGameFeaturesSubsystem::Get().LoadAndActivateGameFeaturePlugin(PluginURL, FGameFeaturePluginLoadComplete::CreateUObject(this, &ThisClass::OnGameFeaturePluginLoadComplete));
+		}
+	}
+	else // 등록된 plugin 즉, 불러올 game feature plugin이 하나도 없다면 FullLoadCompleted 함수를 호출해 로드를 완전히 끝났을 때 처리로 이동함.
+	{
+		OnExperienceFullLoadCompleted();
+	}
+}
+
+void UTIExperienceManagerComponent::OnGameFeaturePluginLoadComplete(const UE::GameFeatures::FResult& Result)
+{
+	// 매번 GameFeature Plugin이 로딩 될 때, 해당 함수가 콜백 함수로 호출됨.
+	NumGameFeaturePluginsLoading--;
+	if (NumGameFeaturePluginsLoading == 0)
+	{
+		// GameFeaturePlugin 로딩이 다 끝났을 경우, 기존대로 Loaded로서, OnExperienceFullLoadCompleted를 호출함.
+		// GameFeaturePlugin 로딩과 활성화가 끝났다면, UGameFeatureAction을 활성화 해야함.
+		OnExperienceFullLoadCompleted();
+	}
 }
 
 void UTIExperienceManagerComponent::OnExperienceFullLoadCompleted()
