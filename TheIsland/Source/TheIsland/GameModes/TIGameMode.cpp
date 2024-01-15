@@ -8,6 +8,7 @@
 #include "TheIsland/TILogChannels.h"
 #include "TIExperienceDefinition.h"
 #include "TIExperienceManagerComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 #include UE_INLINE_GENERATED_CPP_BY_NAME(TIGameMode)
 
@@ -45,6 +46,17 @@ void ATIGameMode::HandleMatchAssignmentIfNotExpectingOne()
 	// 이 함수에서는 우리가 로딩할 ExperienceDefinition 애셋의 PrimaryAssetId를 가져와서, OnMatchAssignmentGiven 함수로 넘겨줌.
 
 	FPrimaryAssetId ExperienceId; // PrimaryAssetId의 경우 애셋 타입과 이름으로 구성됨.
+
+	UWorld* World = GetWorld();
+
+	// 우리가 앞서 URL의 명령 인자로 함께 넘겨준 Experience 이름을 사용해 해당 Experience를 로드할 수 있도록 ExperienceId를 설정해줌.
+	// 명령 인자의 경우 GameMode의 OptionString에 저장되어 있음.
+	if (!ExperienceId.IsValid() && UGameplayStatics::HasOption(OptionsString, TEXT("Experience")))
+	{
+		// Experience의 Value를 가져와서, PrimaryAssetId를 생성해줌. 이 때, ExperienceDefinition의 Class 이름을 사용함.
+		const FString ExperienceFromOptions = UGameplayStatics::ParseOption(OptionsString, TEXT("Experience"));
+		ExperienceId = FPrimaryAssetId(FPrimaryAssetType(UTIExperienceDefinition::StaticClass()->GetFName()), FName(*ExperienceFromOptions));
+	}
 
 	// 아무런 설정도 하지 않은 경우 기본적으로 불러올 ExperienceDefinition.
 	if (!ExperienceId.IsValid())
