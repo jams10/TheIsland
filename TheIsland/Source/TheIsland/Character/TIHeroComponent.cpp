@@ -16,6 +16,9 @@
 
 const FName UTIHeroComponent::NAME_ActorFeatureName("Hero");
 
+// InputConfig의 GameFeatureAction 활성화 ExtensionEvent 이름.
+const FName UTIHeroComponent::NAME_BindInputsNow("BindInputsNow");
+
 UTIHeroComponent::UTIHeroComponent(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -258,6 +261,11 @@ void UTIHeroComponent::InitializePlayerInput(UInputComponent* PlayerInputCompone
 			}
 		}
 	}
+
+	// GameFeatureAction_AddInputConfig의 HandlePawnExtension 콜백 함수 전달.
+	// 현재 이 클래스(HeroComponent)는 마네킹 캐릭터 블루프린트에 추가 되었으므로, 마네킹 캐릭터에서 강제로 NAME_BindInputsNow 이벤트를 보냄.
+	// 그러면, AddInputConfig GameFeatureAction 클래스의 콜백 함수인 HandlePawnExtension 함수가 호출됨.
+	UGameFrameworkComponentManager::SendGameFrameworkComponentExtensionEvent(const_cast<APawn*>(Pawn), NAME_BindInputsNow);
 }
 
 void UTIHeroComponent::Input_Move(const FInputActionValue& InputActionValue)
