@@ -1,13 +1,14 @@
 #pragma once
 
 #include "GameFramework/Character.h"
+#include "ModularCharacter.h"
 #include "TICharacter.generated.h"
 
 class UTIPawnExtensionComponent;
 class UTICameraComponent;
 
 UCLASS()
-class ATICharacter : public ACharacter
+class ATICharacter : public AModularCharacter
 {
 	GENERATED_BODY()
 public:
