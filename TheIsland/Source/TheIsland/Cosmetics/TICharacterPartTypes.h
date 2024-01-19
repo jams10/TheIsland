@@ -1,11 +1,11 @@
-#pragma once
+ï»¿#pragma once
 
 #include "CoreMinimal.h"
 #include "TICharacterPartTypes.generated.h"
 
 /*
 *	FTICharacterPartHandle
-*	Character Part Entry¸¦ Ãß°¡ ÇÔÀ¸·Î½á ¸¸µé¾îÁö´Â ÇÚµé. ³ªÁß¿¡ ÇØ´ç Character Part¸¦ Á¦°ÅÇÒ ¶§ »ç¿ëÇÔ.
+*	Character Part Entryë¥¼ ì¶”ê°€ í•¨ìœ¼ë¡œì¨ ë§Œë“¤ì–´ì§€ëŠ” í•¸ë“¤. ë‚˜ì¤‘ì— í•´ë‹¹ Character Partë¥¼ ì œê±°í•  ë•Œ ì‚¬ìš©í•¨.
 */
 USTRUCT(BlueprintType)
 struct FTICharacterPartHandle
@@ -28,18 +28,24 @@ struct FTICharacterPartHandle
 
 /*
 *	FTICharacterPart
-*	Ä³¸¯ÅÍ ÆÄÃ÷ ³»¿ëÀ» ´ãÀº ±¸Á¶Ã¼. ÆÄÃ÷¸¦ ³ªÅ¸³»´Â ¾×ÅÍ Å¬·¡½º¿Í ¾îµğ¿¡ ºÙ¿©ÁÙ Áö¿¡ ´ëÇÑ ¼ÒÄÏ Á¤º¸¸¦ ÀúÀå.
+*	ìºë¦­í„° íŒŒì¸  ë‚´ìš©ì„ ë‹´ì€ êµ¬ì¡°ì²´. íŒŒì¸ ë¥¼ ë‚˜íƒ€ë‚´ëŠ” ì•¡í„° í´ë˜ìŠ¤ì™€ ì–´ë””ì— ë¶™ì—¬ì¤„ ì§€ì— ëŒ€í•œ ì†Œì¼“ ì •ë³´ë¥¼ ì €ì¥.
 */
 USTRUCT(BlueprintType)
 struct FTICharacterPart
 {
 	GENERATED_BODY()
 
-	// ÆÄÃ÷·Î »ı¼ºÇÑ ActorÀÇ Class Á¤º¸¸¦ °¡Áö°í ÀÖÀ½ -> Actor BP¸¦ ÇÏ³ªÀÇ ÆÄÃ÷·Î »ı°¢ÇÏ¸é µÊ.
+	// íŒŒì¸ ë¡œ ìƒì„±í•œ Actorì˜ Class ì •ë³´ë¥¼ ê°€ì§€ê³  ìˆìŒ -> Actor BPë¥¼ í•˜ë‚˜ì˜ íŒŒì¸ ë¡œ ìƒê°í•˜ë©´ ë¨.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AActor> PartClass;
 
-	// Actor¸¦ ¼ÒÈ¯ÇÏ¿© ºÙÀÌ´Âµ¥ Æ¯Á¤ Bone¿¡ ºÙÀÌ±â À§ÇÑ Á¤º¸ (µû·Î Á¤ÀÇµÇ¾î ÀÖÁö ¾ÊÀ¸¸é ±×³É Root¿¡ ºÙÀÓ)
+	// Actorë¥¼ ì†Œí™˜í•˜ì—¬ ë¶™ì´ëŠ”ë° íŠ¹ì • Boneì— ë¶™ì´ê¸° ìœ„í•œ ì •ë³´ (ë”°ë¡œ ì •ì˜ë˜ì–´ ìˆì§€ ì•Šìœ¼ë©´ ê·¸ëƒ¥ Rootì— ë¶™ì„)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName SocketName;
+
+	// ë‘ ìºë¦­í„° íŒŒì¸ ê°€ ë™ì¼í•œì¹˜ ë¹„êµí•˜ëŠ” í•¨ìˆ˜.
+	static bool AreEquivalentParts(const FTICharacterPart& A, const FTICharacterPart& B)
+	{
+		return (A.PartClass == B.PartClass) && (A.SocketName == B.SocketName);
+	}
 };
