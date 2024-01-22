@@ -49,6 +49,18 @@ struct FTICharacterPartList
 		: OwnerComponent(InOwnerComponent)
 	{}
 
+	FGameplayTagContainer CollectCombinedTags() const;
+
+	// 캐릭터 파츠 인스턴스를 실제로 스폰, 캐릭터에 붙여주는 함수.
+	bool SpawnActorForEntry(FTIAppliedCharacterPartEntry& Entry);
+	// 캐릭터 파츠 인스턴스를 제거하는 함수.
+	void DestroyActorForEntry(FTIAppliedCharacterPartEntry& Entry);
+
+	// 실제로 인스턴스화 될 캐릭터 파츠들을 관리하는 캐릭터 파츠 리스트에 캐릭터 파츠를 추가하는 함수.
+	FTICharacterPartHandle AddEntry(FTICharacterPart NewPart);
+	// 실제로 인스턴스화 될 캐릭터 파츠들을 관리하는 캐릭터 파츠 리스트에서 캐릭터 파츠를 제거하는 함수.
+	void RemoveEntry(FTICharacterPartHandle Handle);
+
 	// 캐릭터에 적용해줄 캐릭터 파츠 리스트.
 	UPROPERTY()
 	TArray<FTIAppliedCharacterPartEntry> Entries;
@@ -72,6 +84,25 @@ class UTIPawnComponent_CharacterParts : public UPawnComponent
 public:
 
 	UTIPawnComponent_CharacterParts(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+
+	// 이 customization 컴포넌트가 붙어 있는 액터에 캐릭터 파츠를 추가하는 함수. 반드시 authority에서 호출되어야 함.
+	FTICharacterPartHandle AddCharacterPart(const FTICharacterPart& NewPart);
+
+	// 이전에 추가된 캐릭터 파츠를 제거하는 함수. 반드시 authority에서 호출되어야 함.
+	void RemoveCharacterPart(FTICharacterPartHandle Handle);
+
+	// 부모 액터가 ACharacter를 상속 받아 만들어진 경우, Mesh 컴포넌트를 리턴하고, 그렇지 않으면 nullptr를 리턴함.
+	USkeletalMeshComponent* GetParentMeshComponent() const;
+	// 캐릭터 파츠를 붙여줄 컴포넌트(메쉬 컴포넌트, 씬 루트 컴포넌트 등)를 리턴하는 함수.
+	USceneComponent* GetSceneComponentToAttachTo() const;
+	// 현재 붙어 있는 캐릭터 파츠들의 결합된 게임 플레이 태그 집합을 리턴하는 함수. 
+	// 선택적으로 지정된 루트로 시작하는 태그들만 필터링 함.
+	FGameplayTagContainer GetCombinedTags(FGameplayTag RequiredPrefix) const;
+
+	// 새 캐릭터 파츠를 추가 했을 때 GameplayTag에 따라 SkeletalMesh를 변경하거나, 초기화 및 관련 Animation, Physics 애셋을 초기화 해주는 함수.
+	void BroadcastChanged();
+
+protected:
 
 	// 캐릭터 파츠 리스트.
 	UPROPERTY()

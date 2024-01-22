@@ -33,6 +33,6 @@ public:
 	TArray<TObjectPtr<UTIExperienceActionSet>> ActionSets;
 
 	// 분류가 필요 없이 그냥 추가해주는 GameFeatureAction.
-	UPROPERTY(EditDefaultsOnly, Category = "Actions")
+	UPROPERTY(EditDefaultsOnly, Instanced, Category = "Actions")
 	TArray<TObjectPtr<UGameFeatureAction>> Actions;
 };

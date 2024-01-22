@@ -4,6 +4,8 @@
 #include "TICharacterPartTypes.h"
 #include "TIControllerComponent_CharacterParts.generated.h"
 
+class UTIPawnComponent_CharacterParts;
+
 /*
 *	FTIControllerCharacterPartEntry
 *	ControllerComponent가 소유하는 Character Parts.
@@ -35,6 +37,21 @@ class UTIControllerComponent_CharacterParts : public UControllerComponent
 public:
 	UTIControllerComponent_CharacterParts(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	// Pawn에 붙어 있는 Customizer 역할의 PawnComponent_CharacterParts 컴포넌트를 리턴하는 함수.
+	UTIPawnComponent_CharacterParts* GetPawnCustomizer() const;
+
+	// 외부에서 캐릭터 파츠 추가를 위해 호출하는 함수.
+	UFUNCTION(BlueprintCallable, Category = Cosmetics)
+	void AddCharacterPart(const FTICharacterPart& NewPart);
+
+protected:
+
+	// 실제로 캐릭터 파츠를 추가하기 위한 작업을 내부에서 처리하는 함수.
+	void AddCharacterPartInternal(const FTICharacterPart& NewPart);
+
+protected:
+
 	UPROPERTY(EditAnywhere, Category = Cosmetics)
 	TArray<FTIControllerCharacterPartEntry> CharacterParts;
+
 };
