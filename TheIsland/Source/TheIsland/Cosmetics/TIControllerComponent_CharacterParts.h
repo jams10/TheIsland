@@ -37,6 +37,9 @@ class UTIControllerComponent_CharacterParts : public UControllerComponent
 public:
 	UTIControllerComponent_CharacterParts(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
+	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	// Pawn에 붙어 있는 Customizer 역할의 PawnComponent_CharacterParts 컴포넌트를 리턴하는 함수.
 	UTIPawnComponent_CharacterParts* GetPawnCustomizer() const;
 
@@ -48,6 +51,14 @@ protected:
 
 	// 실제로 캐릭터 파츠를 추가하기 위한 작업을 내부에서 처리하는 함수.
 	void AddCharacterPartInternal(const FTICharacterPart& NewPart);
+
+	/* UFUNCTION으로 정의하지 않으면 AddDynamic이 되지 않는다! */
+	// Controller가 Pawn을 Possess한 Pawn이 바뀔 때 호출 시켜줄 함수. 
+	UFUNCTION()
+	void OnPossessedPawnChanged(APawn* OldPawn, APawn* NewPawn);
+
+	// 모든 캐릭터 파츠들을 제거하는 함수.
+	void RemoveAllCharacterParts();
 
 protected:
 

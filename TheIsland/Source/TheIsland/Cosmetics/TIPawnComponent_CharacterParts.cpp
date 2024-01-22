@@ -64,6 +64,8 @@ bool FTICharacterPartList::SpawnActorForEntry(FTIAppliedCharacterPartEntry& Entr
 			bCreatedAnyActor = true;
 		}
 	}
+
+	return bCreatedAnyActor;
 }
 
 void FTICharacterPartList::DestroyActorForEntry(FTIAppliedCharacterPartEntry& Entry)
@@ -116,7 +118,8 @@ void FTICharacterPartList::RemoveEntry(FTICharacterPartHandle Handle)
 }
 
 UTIPawnComponent_CharacterParts::UTIPawnComponent_CharacterParts(const FObjectInitializer& ObjectInitializer)
-	:Super(ObjectInitializer)
+	:Super(ObjectInitializer),
+	CharacterPartList(this)
 {
 }
 
